@@ -1,74 +1,143 @@
 import { View, Text, Pressable, Image } from "react-native";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomInput } from "@/components/CustomInput";
-import CustomButton from "@/components/CustomButton";
-import PhoneInput from "react-native-phone-number-input";
-import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
-import google from '@/assets/images/google-icon.png'
+//@ts-ignore
+import google from "@/assets/images/google-icon.png";
+import { Formik, FormikHandlers, FormikValues } from "formik";
+import axios from "axios";
+import { baseurl } from "@/app/api/baseurl";
+import UserDetails from "./userDetails";
+import Password from "./password";
+import * as yup from "yup";
 
 const Welcome = () => {
-  const [value, setValue] = useState();
+  // const [value, setValue] = useState();
+  const [step, setStep] = useState("userDetails");
+  const [loading, setLoading] = useState(false);
+
+  const initialValues = {
+    full_name: "",
+    email: "",
+    username: "",
+    phone_number: "",
+    password: "",
+    password_confirmation: "",
+  };
+
+  const userSchema = yup.object().shape({
+    email: yup.string().email("Invalid email").required("Email is Required"),
+    username: yup.string().required("Username is Required"),
+    full_name: yup.string().required("Full Name is Required"),
+    phone_number: yup.string().required("Phone Number is Required"),
+  });
+
+  const passwordSchema = yup.object().shape({
+    password: yup
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .required("Password is required"),
+    password_confirmation: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords do not match"),
+  });
+
+  const handleSubmit = async (values: FormikValues) => {
+    console.log(values);
+    setLoading(true);
+    await axios
+      .post(`${baseurl}/register/`, values, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((res) => {
+        console.log(res.data.data, "response");
+        router.push({pathname: "/(auth)/signup/otp", params:{res : JSON.stringify(res.data.data)}});
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleStep = (step: string) => {
+    setStep(step);
+  };
+
+  const rendercomponent = (
+    handleSubmit: FormikHandlers["handleSubmit"],
+    handleChange: FormikHandlers["handleChange"],
+    handleBlur: FormikHandlers["handleBlur"],
+    values: FormikValues,
+    errors: FormikValues,
+    setErrors: FormikValues
+  ) => {
+    switch (step) {
+      case "userDetails":
+        return (
+          <UserDetails
+            change={handleChange}
+            errors={errors}
+            blur={handleBlur}
+            values={values}
+            next={handleStep}
+          />
+        );
+
+      case "password":
+        return (
+          <Password
+            change={handleChange}
+            errors={errors}
+            blur={handleBlur}
+            submit={handleSubmit}
+            values={values}
+            next={handleStep}
+            loading={loading}
+          />
+        );
+
+      default:
+        return (
+          <UserDetails
+            change={handleChange}
+            errors={errors}
+            blur={handleBlur}
+            values={values}
+            next={handleStep}
+          />
+        );
+    }
+  };
+
   return (
-    <SafeAreaView className="flex-1 px-5">
-      <View className="mb-6">
-        <Text className="text-[64px]">Welcome</Text>
-        <Text className="text-2xl">Lets get you started</Text>
-      </View>
-
-      <View className="flex-1">
-        <CustomInput ph="Full Name" />
-        <CustomInput ph="Email" />
-        <CustomInput ph="Username" />
-        <PhoneInput
-          placeholder="Enter phone number"
-          defaultValue={value}
-          defaultCode="GH"
-          layout='first'
-          onChangeText={(e) => setValue(e)}
-          autoFocus
-          containerStyle={{ width: '100%', borderWidth: 1, borderColor: '#3F3F3F24', borderRadius: 15, overflow: 'hidden', marginBottom: 15 }}
-        />
-
-      <View className="my-4">
-        <CustomButton lab="Continue" bg="#F47D7B" textColor="#fff" onPress={() => router.push('/(auth)/signup/otp')}/>
-      </View>
-      </View>
-
-      <View className="space-y-3">
-              <View className="flex-row items-center justify-between">
-                <View className="border-2 border-[#3F3F3F24] w-[40%]" />
-                <Text className="text-[#F47D7B]">Or</Text>
-                <View className="border-2 border-[#3F3F3F24] w-[40%]" />
-              </View>
-
-              <View className="space-y-5">
-                <Pressable className="flex-row justify-center bg-[#fff] py-4 items-center space-x-3 rounded-[15px]">
-                  <Image
-                    source={google}
-                    className="w-[30px] h-[30px]"
-                    resizeMode="contain"
-                  />
-                  <Text className="text-lg">Sign in with google</Text>
-                </Pressable>
-
-                <Pressable className="flex-row justify-center bg-[#111111] py-4 items-center space-x-3 rounded-[15px]">
-                  <FontAwesome name="apple" size={24} color="#fff" />
-                  <Text className="text-lg text-[#fff]">
-                    Sign in with apple
-                  </Text>
-                </Pressable>
-
-                <View className="flex-row items-center justify-center mb-4">
-                  <Text>Don’t have an Account? </Text>
-                  <Pressable onPress={() => router.push('/(auth)')}>
-                    <Text className="text-[#F47D7B]">Sign In here</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-    </SafeAreaView>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={step === "userDetails" ? userSchema : passwordSchema}
+      validateOnBlur={true}
+      onSubmit={handleSubmit}
+    >
+      {({
+        handleSubmit,
+        handleBlur,
+        handleChange,
+        values,
+        errors,
+        setErrors,
+      }) => (
+        <>
+          {rendercomponent(
+            handleSubmit,
+            handleChange,
+            handleBlur,
+            values,
+            errors,
+            setErrors
+          )}
+        </>
+      )}
+    </Formik>
   );
 };
 

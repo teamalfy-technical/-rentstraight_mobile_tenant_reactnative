@@ -12,8 +12,10 @@ import * as ImagePicker from "expo-image-picker";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
+import BottomModal from "@/components/BottomModal";
 
 const ProfileUpload = () => {
+  const [ loading, setLoading ] = useState(false)
   const [image, setImage] = useState<String | null>(null);
 
   const pickImage = async () => {
@@ -81,6 +83,7 @@ const ProfileUpload = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <BottomModal text={'is confirming your verification code'} loading = {loading}/>
     </SafeAreaView>
   );
 };
