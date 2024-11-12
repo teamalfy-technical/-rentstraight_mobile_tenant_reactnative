@@ -3,12 +3,17 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { MotiView } from "moti";
 // @ts-ignore
 import logo from "@/assets/images/logo.png";
+import CustomButton from "./CustomButton";
 
 type Props = ModalProps & {
   children?: ReactNode;
   loading: boolean;
   text: string;
-    open?: boolean
+  open?: boolean;
+  button?: ReactNode;
+  lab?: string;
+  bg?: string;
+  onPress?: () => void;
 };
 
 const BottomModal = ({
@@ -17,6 +22,10 @@ const BottomModal = ({
   loading,
   //   onClose,
   open,
+  button,
+  bg,
+  lab,
+  onPress,
   ...modalProps
 }: Props) => {
   const [showCheckmark, setShowCheckmark] = useState(false);
@@ -85,22 +94,19 @@ const BottomModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View
-            style={styles.logoContainer}
-            className="space-x-5 font-semibold"
-          >
+          <View style={styles.logoContainer}>
             <Image source={logo} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.modalText} className="font-mont">
-              RentStraight
-            </Text>
+            <Text style={styles.modalText}>RentStraight</Text>
           </View>
-          {text && (
-            <Text className="text-[#111111] text-[36px] font-mont my-5">
-              {text}
-            </Text>
+          {text && <Text style={styles.textContent}>{text}</Text>}
+          <View style={[styles.iconContainer, { position: 'absolute', bottom: 20, right: 20 }]}>
+            {renderIcon()}
+          </View>
+          {button && (
+            <View style={styles.buttonContainer}>
+              <CustomButton lab={lab} bg="#F47D7B" onPress={onPress} />
+            </View>
           )}
-
-          <View className="flex-1 items-end p-5">{renderIcon()}</View>
         </View>
       </View>
     </Modal>
@@ -118,19 +124,39 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
+    minHeight: 300, // Ensure a minimum height for the modal
   },
   logoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   logo: {
-    width: 60,
-    height: 65,
+    width: 50,
+    height: 50,
+    marginRight: 10,
   },
   modalText: {
-    fontSize: 32,
+    fontSize: 24,
     color: "#111111",
+    fontWeight: "600",
+    fontFamily: "Montserrat-SemiBold",
+  },
+  textContent: {
+    fontSize: 28,
+    color: "#111111",
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  iconContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  buttonContainer: {
+    marginTop: 20,
   },
 });
 

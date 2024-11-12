@@ -12,13 +12,22 @@ type compProps = {
   iconRight?: ReactNode; 
   secureEntry?: boolean;
   change?: (text: string) => void; // Updated to accept text
-  blur?: () => void;
+  blur?: (text: string) => void;
   value?: string;
+  bs?: number; // Added for border size
+  bc?: string; // Added for border color
+  phc?: string; // Added for border color
 };
 
-export const CustomInput = ({ textColor, className, ph, bg, type, iconLeft, iconRight, secureEntry, change, blur, value }: compProps) => {
+export const CustomInput = ({ textColor, className, ph, bg, phc, type, iconLeft, iconRight, secureEntry, change, blur, value, bs, bc }: compProps) => {
   return (
-    <View className="my-4 flex flex-row items-center border-2 border-[#3F3F3F24] rounded-lg ">
+    <View className="my-4 flex flex-row items-center overflow-hidden" 
+      style = {{
+        borderWidth: bs ? bs : 2, // Add border size if provided
+          borderColor: bc ? bc : '#3F3F3F24', // Add border color if provided
+          borderRadius: 15
+      }}
+    >
       {iconLeft && (
         <View className="mr-2">
           {iconLeft}
@@ -29,11 +38,12 @@ export const CustomInput = ({ textColor, className, ph, bg, type, iconLeft, icon
         inputMode={type}
         style={{
           backgroundColor: bg,
-          color: textColor,
+          color: textColor
         }}
-        className={`flex-1 px-3 py-3 text-lg ${className}`}
+        className={`flex-1 px-5 py-3 text-lg ${className}`}
         selectionColor={textColor}
         secureTextEntry={secureEntry}
+        placeholderTextColor={phc? phc : "#00000034"}
         onChangeText={change} // Correctly passes the text value
         onBlur={blur}
         value={value}

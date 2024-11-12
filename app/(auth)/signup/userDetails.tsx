@@ -1,22 +1,30 @@
 import { View, Text, Pressable, Image, ScrollView } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import { CustomInput } from "@/components/CustomInput";
 import PhoneInput from "react-native-phone-number-input";
 //@ts-ignore
 import google from "@/assets/images/google-icon.png";
+import BottomModal from "@/components/BottomModal";
 
-const UserDetails = ({ change, errors, blur, values, next }: any) => {
+const UserDetails = ({ change, errors, blur, values, next, submit, loading }: any) => {
   console.log(values, "values");
-  const disable = !values?.full_name || !values?.email || !values?.username || !values?.phone_number
+  const disable =
+    !values.full_name ||
+    !values.email ||
+    !values.username ||
+    !values.phone_number ||
+    !values.password ||
+    !values.password_confirmation;
+  const [show, setShow] = useState(false);
   return (
     <SafeAreaView className="flex-1 px-5">
       <View className="mb-6">
-        <Text className="text-[64px] font-montAlt">Welcome</Text>
-        <Text className="text-2xl font-montAlt">Lets get you started</Text>
+        <Text style={{fontFamily: 'montAlt'}} className="text-[64px]">Welcome</Text>
+        <Text style={{fontFamily: 'montAlt'}} className="text-2xl">Lets get you started</Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -65,48 +73,66 @@ const UserDetails = ({ change, errors, blur, values, next }: any) => {
             }}
           />
 
+          <CustomInput
+            ph="Password"
+            secureEntry={!show}
+            change={change("password")}
+            blur={blur("password")}
+            iconRight={
+              <Entypo
+                name={show ? "eye-with-line" : "eye"}
+                size={30}
+                color="black"
+                role="button"
+                onPress={() => setShow(!show)}
+              />
+            }
+          />
+          {errors.password && (
+            <Text className="text-red-500">{errors.password}</Text>
+          )}
+
+          <CustomInput
+            ph="Confirm Password"
+            secureEntry={!show}
+            change={change("password_confirmation")}
+            blur={blur("password_confirmation")}
+            iconRight={
+              <Entypo
+                name={show ? "eye-with-line" : "eye"}
+                size={30}
+                color="black"
+                onPress={() => setShow(!show)}
+              />
+            }
+          />
+          {errors.password_confirmation && (
+            <Text className="text-red-500">{errors.password_confirmation}</Text>
+          )}
+
           <View className="my-4">
             <CustomButton
               lab="Continue"
               bg="#F47D7B"
               textColor="#fff"
-              onPress={() => next("password")}
+              onPress={() => submit()}
               disabled={disable}
             />
           </View>
-        </View>
-      </ScrollView>
-
-      <View className="space-y-3">
-        <View className="flex-row items-center justify-between">
-          <View className="border-2 border-[#3F3F3F24] w-[40%]" />
-          <Text className="text-[#F47D7B]">Or</Text>
-          <View className="border-2 border-[#3F3F3F24] w-[40%]" />
-        </View>
-
-        <View className="space-y-5">
-          <Pressable className="flex-row justify-center bg-[#fff] py-4 items-center space-x-3 rounded-[15px]">
-            <Image
-              source={google}
-              className="w-[30px] h-[30px]"
-              resizeMode="contain"
-            />
-            <Text className="text-lg">Sign in with google</Text>
-          </Pressable>
-
-          <Pressable className="flex-row justify-center bg-[#111111] py-4 items-center space-x-3 rounded-[15px]">
-            <FontAwesome name="apple" size={24} color="#fff" />
-            <Text className="text-lg text-[#fff]">Sign in with apple</Text>
-          </Pressable>
 
           <View className="flex-row items-center justify-center mb-4">
-            <Text>Don’t have an Account? </Text>
+            <Text>Already have an Account? </Text>
             <Pressable onPress={() => router.push("/(auth)")}>
               <Text className="text-[#F47D7B]">Sign In here</Text>
             </Pressable>
           </View>
         </View>
-      </View>
+      </ScrollView>
+      <BottomModal
+        loading={loading}
+        open={loading}
+        text="Is setting up your account, please wait..."
+      />
     </SafeAreaView>
   );
 };

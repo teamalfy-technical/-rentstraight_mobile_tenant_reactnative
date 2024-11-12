@@ -1,6 +1,6 @@
 import { baseurl } from "@/app/api/baseurl";
 import axios from "axios";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -10,6 +10,8 @@ interface userProps {
   email: string;
   username: string;
   avatar: string;
+  phone_number: string;
+  token: string;
 }
 
 type AuthContextProps = {
@@ -18,6 +20,7 @@ type AuthContextProps = {
   user: userProps | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: Partial<userProps>) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -28,6 +31,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<userProps | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadAuthData = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          router.push("/(tabs)");
+        }
+      } catch (error) {
+        console.error("Error loading auth data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAuthData();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -55,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.log(err, "error");
       Alert.alert(
         "Error",
-        err.response?.data?.message || "Something went wrong"
+        err.response?.data?.message || "Something went wrong, please try again..."
       );
     } finally {
       setLoading(false);
@@ -66,10 +88,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // Clear token and user data from AsyncStorage
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
+    router.replace('/(auth)')
 
     // Reset state
     setToken(null);
     setUser(null);
+  };
+
+  const updateUser = async (userData: Partial<userProps>) => {
+    try {
+      const updatedUser: userProps = { ...user!, ...userData };
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      // Verify the update
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        console.log("Updated user in AsyncStorage:", parsedUser);
+      }
+    } catch (error) {
+      console.error("Error updating user data:", error);
+      throw error; // Propagate the error
+    }
   };
 
   const contextValue: AuthContextProps = {
@@ -78,6 +119,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     loading,
     token,
     user,
+    updateUser
   };
 
   return (

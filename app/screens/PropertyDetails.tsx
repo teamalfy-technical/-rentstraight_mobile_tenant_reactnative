@@ -5,8 +5,9 @@ import {
   ScrollView,
   ImageBackground,
   Pressable,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBack from "@/components/TopBack";
 import {
@@ -24,11 +25,44 @@ import { Link, router, useLocalSearchParams } from "expo-router";
 import GoogleStaticMap from "@dazik/react-native-static-map";
 import CustomButton from "@/components/CustomButton";
 import MeetupDate from "@/components/MeetupDate";
+import axios from "axios";
+import { baseurl } from "../api/baseurl";
+import { useAuth } from "@/context/AuthContext";
+import BottomModal from "@/components/BottomModal";
 
 const PropertyDetails = () => {
+  const { token, user } = useAuth();
+  const [ prop, setProp ] = useState([])
+  const [ loading, setLoading ] = useState(true)
   const [show, setShow] = useState(false);
   const item = useLocalSearchParams();
   console.log(item, "item");
+
+  const fetchProp = async () => {
+    await axios.get(`${baseurl}/properties/${item?.uuid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "x-user-account-type": "tenant"
+      }
+    })
+    .then(res => {
+      console.log(res.data.data, "response for single item")
+      if(res.status === 200 || res.status === 201){
+        setProp(res.data.data)
+      }
+    })
+    .catch(err => {
+      Alert.alert("Error", `Error fetching property details, please try again later, ${err}`)
+    })
+    .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchProp()
+  }, [])
+
   return (
     <SafeAreaView className="flex-1 px-5">
       <TopBack />
@@ -44,7 +78,7 @@ const PropertyDetails = () => {
           <ImageBackground
             className="flex-1 justify-between"
             resizeMode="cover"
-            source={require("@/assets/images/bg3.jpeg")}
+            source={{ uri: prop?.thumbnail }}
           >
             <View className="absolute top-5 right-5">
               <MaterialIcons name="favorite" size={24} color="white" />
@@ -52,22 +86,22 @@ const PropertyDetails = () => {
 
             <View className="p-4 absolute bottom-5">
               <View className="flex-row w-full justify-between items-center">
-                <Text className="font-semibold text-2xl text-white font-montAlt">
-                  House Name
+                <Text style={{fontFamily: 'montAlt'}} className="font-semibold text-2xl text-white">
+                  {item?.name}
                 </Text>
                 <Text className="bg-[#10AF2940] text-[#10AF29] px-2 py-1 rounded-2xl">
-                  Status
+                  {item?.status}
                 </Text>
               </View>
 
-              <Text className="text-lg text-white font-montAlt">
-                Ritz, Adenta | 3.5Km away
+              <Text style={{fontFamily: 'montAlt'}} className="text-lg text-white">
+              {prop?.address?.city}, {item?.address?.line_1} | {prop?.address?.line_2}
               </Text>
 
               <View className="flex-row mt-2 space-x-5">
                 <View className="flex-row items-center space-x-1">
                   <Ionicons name="bed-outline" size={24} color="white" />
-                  <Text className="text-white">1</Text>
+                  <Text className="text-white">{prop?.stats?.features?.bedrooms}</Text>
                 </View>
                 <View className="flex-row items-center space-x-1">
                   <MaterialCommunityIcons
@@ -75,7 +109,7 @@ const PropertyDetails = () => {
                     size={24}
                     color="white"
                   />
-                  <Text className="text-white">2</Text>
+                  <Text className="text-white">{prop?.stats?.features?.kitchens}</Text>
                 </View>
                 <View className="flex-row items-center space-x-1">
                   <MaterialCommunityIcons
@@ -83,7 +117,7 @@ const PropertyDetails = () => {
                     size={24}
                     color="white"
                   />
-                  <Text className="text-white">5</Text>
+                  <Text className="text-white">{prop?.stats?.features?.bathrooms}</Text>
                 </View>
               </View>
             </View>
@@ -93,8 +127,8 @@ const PropertyDetails = () => {
         <View className="bg-[#fff] shadow-sm rounded-2xl">
           <View className="p-4 space-y-2">
             <View className="flex-row w-full justify-between items-center">
-              <Text className="font-semibold text-2xl text-black font-montAlt">
-                House Name
+              <Text style={{fontFamily: 'montAlt'}} className="font-semibold text-2xl text-black">
+                {prop?.name}
               </Text>
               <Ionicons
                 name="call"
@@ -110,8 +144,8 @@ const PropertyDetails = () => {
               />
             </View>
 
-            <Text className="text-lg text-black font-montAlt">
-              Ritz, Adenta | 3.5Km away
+            <Text style={{fontFamily: 'montAlt'}} className="text-lg text-black">
+            {prop?.address?.city}, {item?.address?.line_1} | {prop?.address?.line_2}
             </Text>
 
             <Text className="text-[#111111]">
@@ -123,12 +157,12 @@ const PropertyDetails = () => {
 
             <View className="flex-row justify-between items-center">
               <Image
-                source={require("@/assets/images/user.jpeg")}
+                source={{ uri: user?.avatar }}
                 className="w-[60px] h-[60px] rounded-full"
-                resizeMode="contain"
+                resizeMode="cover"
               />
               <Link href={"/"}>
-                <Text className="font-montAlt text-sm underline text-[#F47D7B]">
+                <Text style={{fontFamily: 'montAlt'}} className="text-sm underline text-[#F47D7B]">
                   Download Policy
                 </Text>
               </Link>
@@ -158,11 +192,11 @@ const PropertyDetails = () => {
             className="rounded-2xl items-center shadow-sm shadow-black bg-white justify-center p-4"
           >
             <FontAwesome6 name="handshake-angle" size={40} color="#F47D7B" />
-            <Text className="font-montAlt text-sm">Book a meetup</Text>
+            <Text style={{fontFamily: 'montAlt'}} className="text-sm">Book a meetup</Text>
           </Pressable>
 
         </View>
-          {show && <MeetupDate show={show} setShow={setShow}/>}
+          {show && <MeetupDate show={show} setShow={setShow} prop = {prop}/>}
 
         <View className="flex-row justify-between items-center">
           <View>
@@ -171,10 +205,16 @@ const PropertyDetails = () => {
           </View>
 
           <View className="w-[50%]">
-            <CustomButton lab="Apply" textColor="#fff" bg="#F47D7B" onPress={() => router.push('/screens/DocumentUpload')}/>
+            <CustomButton lab="Apply" textColor="#fff" bg="#F47D7B" onPress={() => router.push({pathname: '/screens/DocumentUpload', params: item})}/>
           </View>
         </View>
       </ScrollView>
+      {loading && (
+        <BottomModal
+          text={"is fetching property details, please wait..."}
+          loading={loading}
+        />
+      )}
     </SafeAreaView>
   );
 };

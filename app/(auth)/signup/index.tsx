@@ -29,6 +29,13 @@ const Welcome = () => {
     username: yup.string().required("Username is Required"),
     full_name: yup.string().required("Full Name is Required"),
     phone_number: yup.string().required("Phone Number is Required"),
+    password: yup
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .required("Password is required"),
+    password_confirmation: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords do not match"),
   });
 
   const passwordSchema = yup.object().shape({
@@ -53,7 +60,13 @@ const Welcome = () => {
       })
       .then((res) => {
         console.log(res.data.data, "response");
-        router.push({pathname: "/(auth)/signup/otp", params:{res : JSON.stringify(res.data.data)}});
+        router.push({
+          pathname: "/(auth)/signup/otp",
+          params: {
+            res: JSON.stringify(res.data.data),
+            user: JSON.stringify(values),
+          },
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -82,6 +95,8 @@ const Welcome = () => {
             blur={handleBlur}
             values={values}
             next={handleStep}
+            submit={handleSubmit}
+            loading={loading}
           />
         );
 
@@ -106,6 +121,8 @@ const Welcome = () => {
             blur={handleBlur}
             values={values}
             next={handleStep}
+            submit={handleSubmit}
+            loading={loading}
           />
         );
     }

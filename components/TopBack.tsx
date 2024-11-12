@@ -2,8 +2,10 @@ import { View, Text, Image } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 
 const TopBack = () => {
+  const { user } = useAuth()
   return (
     <View className="flex-row items-center justify-between">
       <Ionicons
@@ -15,7 +17,7 @@ const TopBack = () => {
         onPress={() => router.back()}
       />
       <Image
-        source={require("@/assets/images/user.jpeg")}
+        source={{ uri: user?.avatar }}
         className="w-[60px] h-[60px] rounded-2xl"
         resizeMode="contain"
       />

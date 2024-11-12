@@ -5,9 +5,30 @@ import DatePicker from "react-native-modern-datepicker";
 import dayjs from "dayjs";
 import CustomButton from "./CustomButton";
 import { AntDesign } from "@expo/vector-icons";
+import BottomModal from "./BottomModal";
+import { baseurl } from "@/app/api/baseurl";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
 
-const MeetupDate = ({ show, setShow }: any) => {
+const MeetupDate = ({ show, setShow, prop }: any) => {
   const [date, setDate] = useState(dayjs());
+  const [ loading, setLoadin ] = useState(false)
+  const { user, token } = useAuth();
+  const data = {
+    property_id: prop?.uuid,
+
+  }
+
+  const scheduleAppointment = async () => {
+    await axios.post(`${baseurl}/appointments`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "x-user-account-type": "tenant"
+      }
+    })
+  }
 
   return (
     <Modal animationType="slide" transparent visible={show}>
@@ -33,6 +54,7 @@ const MeetupDate = ({ show, setShow }: any) => {
           </View>
         </View>
       </View>
+      <BottomModal open={loading} loading = {loading} text="Has successfully booked your appointment"/>
     </Modal>
   );
 };

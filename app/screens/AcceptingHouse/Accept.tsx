@@ -52,7 +52,7 @@ const Accept = () => {
           </Pressable>
           <View className="p-4 absolute bottom-5">
             <View className="flex-row w-full justify-between items-center">
-              <Text className="font-semibold text-2xl text-white font-montAlt">
+              <Text style={{fontFamily: 'montAlt'}} className="font-semibold text-2xl text-white">
                 House Name
               </Text>
               <Text className="bg-[#10AF2940] text-[#10AF29] px-2 py-1 rounded-2xl">
@@ -60,7 +60,7 @@ const Accept = () => {
               </Text>
             </View>
 
-            <Text className="text-lg text-white font-montAlt">
+            <Text style={{fontFamily: 'montAlt'}} className="text-lg text-white">
               Ritz, Adenta | 3.5Km away
             </Text>
 
@@ -125,7 +125,7 @@ const Accept = () => {
                 </Select> */}
               </View>
               <View className="flex-row items-center justify-between">
-                <Text className="text-[#111111] font-bold text-2xl font-montAlt">
+                <Text style={{fontFamily: 'montAlt'}} className="text-[#111111] font-bold text-2xl">
                   3 Years
                 </Text>
               </View>

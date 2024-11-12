@@ -1,4 +1,13 @@
-import { View, Text, ImageBackground, Pressable, Image } from "react-native";
+import {
+  View,
+  Text,
+  ImageBackground,
+  Pressable,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "@/components/Topbar";
@@ -19,84 +28,147 @@ const SignIn = () => {
 
   const handleLogin = async (values: FormikValues) => {
     await login(values.email, values.password);
-  }
+    // router.push('/(tabs)')
+  };
   return (
     <SafeAreaView className="flex-1 bg-[#41414138]">
-      <BlurView intensity={70} tint="light" className="flex-1 ">
         <ImageBackground
           source={bg}
           className="flex-1 w-full absolute z-0 right-[-30%] top-14 h-[90%] bg-right"
           resizeMode="cover"
         />
+      <BlurView intensity={30} tint="regular" style = {{ flex: 1}}>
         <View className="flex-1 bg-opacity-30 px-5">
           <TopBar />
-          <View className="flex-1">
-            <View className="flex-1">
-              <View className="">
-                <Text className="text-[64px] font-montAlt">Elevate Your</Text>
-                <Text className="text-[#F47D7B] text-[64px] font-montAlt">Experience</Text>
-              </View>
+          <KeyboardAvoidingView
+            className="flex-1 h-screen"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+              {/* <View className="flex-1"> */}
+              <View className="flex-1 h-[75vh]">
+                <View>
+                  <Text
+                    style={{ fontFamily: "montAlt" }}
+                    className="text-[64px]"
+                  >
+                    Elevate Your
+                  </Text>
+                  <Text
+                    style={{ fontFamily: "montAlt" }}
+                    className="text-[#F47D7B] text-[64px]"
+                  >
+                    Experience
+                  </Text>
+                </View>
 
-              <Formik initialValues={{email: '', password: ''}} onSubmit={handleLogin}>
-                {({ handleChange, handleSubmit, values, handleBlur }) => (
-              <View className="space-y-5">
-                <CustomInput ph="Username" textColor="#fff" bg="#3F3F3F24" change={handleChange('email')} value={values.email} blur={() => handleBlur('email')}/>
-                <CustomInput ph="Password" textColor="#fff" bg="#3F3F3F24" change={handleChange('password')} value={values.password} blur={() => handleBlur('password')} />
-
-                <Pressable
-                  className="rounded-[15px] bg-[#F47D7B] py-4 items-center mb-5"
-                  onPress={() => handleSubmit()}
+                <Formik
+                  initialValues={{ email: "", password: "" }}
+                  onSubmit={handleLogin}
                 >
-                  <Text className="text-[#fff] text-lg font-montAlt">Sign In</Text>
-                </Pressable>
-              </View>
-            )}
-              </Formik>
+                  {({ handleChange, handleSubmit, values, handleBlur }) => (
+                    <View className="space-y-5">
+                      <CustomInput
+                        ph="Email"
+                        textColor="#fff"
+                        bg="#3F3F3F24"
+                        change={handleChange("email")}
+                        value={values.email}
+                        blur={() => handleBlur("email")}
+                        bs={1}
+                        bc="#FFFFFF40"
+                        phc="#fff"
+                      />
+                      <CustomInput
+                        ph="Password"
+                        textColor="#fff"
+                        bg="#3F3F3F25"
+                        change={handleChange("password")}
+                        value={values.password}
+                        blur={() => handleBlur("password")}
+                        bs={1}
+                        bc="#FFFFFF40"
+                        phc="#fff"
+                      />
 
-              <View className="flex-row items-center justify-center">
-                <Text className=" font-montAlt text-sm">Forgot password? </Text>
-                <Pressable>
-                  <Text className="text-[#F47D7B] font-montAlt">Click here to recover</Text>
-                </Pressable>
-              </View>
-            </View>
+                      <Pressable
+                        className="rounded-[15px] bg-[#F47D7B] py-4 items-center mb-5"
+                        onPress={() => handleSubmit()}
+                      >
+                        <Text
+                          style={{ fontFamily: "montAlt" }}
+                          className="text-[#fff] text-lg"
+                        >
+                          Sign In
+                        </Text>
+                      </Pressable>
+                    </View>
+                  )}
+                </Formik>
 
-            <View className="space-y-3">
-              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center justify-center">
+                  <Text style={{ fontFamily: "montAlt" }} className="text-sm">
+                    Forgot password?{" "}
+                  </Text>
+                  <Pressable>
+                    <Text
+                      style={{ fontFamily: "montAlt" }}
+                      className="text-[#F47D7B]"
+                    >
+                      Click here to recover
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* <View className="space-y-3"> */}
+              {/* <View className="flex-row items-center justify-between">
                 <View className="border-2 border-[#3F3F3F24] w-[40%]" />
                 <Text className="text-[#F47D7B]">Or</Text>
                 <View className="border-2 border-[#3F3F3F24] w-[40%]" />
-              </View>
+              </View> */}
 
-              <View className="space-y-5">
-                <Pressable className="flex-row justify-center bg-[#fff] py-4 items-center space-x-3 rounded-[15px]">
+              {/* <View className="space-y-5"> */}
+              {/* <Pressable className="flex-row justify-center bg-[#fff] py-4 items-center space-x-3 rounded-[15px]">
                   <Image
                     source={google}
                     className="w-[30px] h-[30px]"
                     resizeMode="contain"
                   />
-                  <Text className="text-lg font-montAlt">Sign in with google</Text>
+                  <Text style={{fontFamily: 'montAlt'}} className="text-lg">Sign in with google</Text>
                 </Pressable>
 
                 <Pressable className="flex-row justify-center bg-[#111111] py-4 items-center space-x-3 rounded-[15px]">
                   <FontAwesome name="apple" size={24} color="#fff" />
-                  <Text className="text-lg text-[#fff] font-montAlt">
+                  <Text style={{fontFamily: 'montAlt'}} className="text-lg text-[#fff]">
                     Sign in with apple
                   </Text>
-                </Pressable>
+                </Pressable> */}
 
-                <View className="flex-row items-center justify-center mb-4">
-                  <Text>Don’t have an Account? </Text>
-                  <Pressable onPress={() => router.push('/(auth)/signup/')}>
-                    <Text className="text-[#F47D7B] font-montAlt">Sign Up here</Text>
-                  </Pressable>
-                </View>
+              {/* </View> */}
+              {/* </View> */}
+              {/* </View> */}
+              <View className="flex-row items-center justify-center mb-10">
+                <Text>Don’t have an Account? </Text>
+                <Pressable onPress={() => router.push("/(auth)/signup/")}>
+                  <Text
+                    style={{ fontFamily: "montAlt" }}
+                    className="text-[#F47D7B]"
+                  >
+                    Sign Up here
+                  </Text>
+                </Pressable>
               </View>
-            </View>
-          </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </BlurView>
-      {loading && <BottomModal text={'is logging you in, please wait...'} loading = {loading}/>}
+      {loading && (
+        <BottomModal
+          text={"is logging you in, please wait..."}
+          loading={loading}
+        />
+      )}
     </SafeAreaView>
   );
 };

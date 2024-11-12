@@ -6,6 +6,8 @@ import {
   ScrollView,
   Pressable,
   Image,
+  Alert,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +28,7 @@ const otp = () => {
   const params = useLocalSearchParams();
 
   const res = JSON.parse(params?.res);
+  const user = JSON.parse(params?.user);
   const name = res?.full_name;
   console.log(res, "res");
 
@@ -42,28 +45,48 @@ const otp = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
           Authorization: `Bearer ${res?.token}`,
+          "x-user-account-type": "tenant"
         },
       })
-      .then((res) => {
-        console.log(res, "res");
+      .then((response) => {
+        console.log(response, "res");
         router.push({
           pathname: "/(auth)/signup/profileUpload",
-          params: { res: JSON.stringify(res.data.data) },
+          params: { res: JSON.stringify(res), user: JSON.stringify(user) },
         });
+      })
+      .catch((err) => {
+        console.log(err, "err");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   const resendEmail = async () => {
-    await axios.post(
-      `${baseurl}/email/resend-verification-token/`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${res?.token}`,
-        },
+    setLoading(true)
+    try {
+      const response = await axios.post(
+        `${baseurl}/email/resend-verification-token/`,
+        {},  // Empty object for the POST body
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${res?.token}`,
+            "x-user-account-type": 'tenant',
+          },
+        }
+      );
+      if(response.status === 200){
+      console.log("Verification email resent successfully.");
       }
-    );
+    } catch (error) {
+      console.error("Failed to resend verification email.", error);
+      Alert.alert("Error", "Error sending verification code, please try again...")
+    } finally{
+      setLoading(false)
+    }
   };
 
   return (
@@ -112,18 +135,18 @@ const otp = () => {
                         borderRadius: 15,
                         width: 80,
                         height: 80,
-                        color: "#FFFFFF",
+                        color: "#000",
                         fontSize: 20,
                         fontWeight: "bold",
                       }}
                       autoFocus
                       keyboardType="email-address"
                     />
-                    <Pressable onPress={resendEmail}>
+                    <TouchableOpacity onPress={resendEmail}>
                       <Text className="text-lg text-[#111111] my-2">
                         Resend email verification
                       </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
 
                   <CustomButton
@@ -162,11 +185,13 @@ const otp = () => {
           )}
         </Formik>
       </KeyboardAvoidingView>
+      {loading && (
       <BottomModal
         text={"is confirming your verification code"}
         loading={loading}
         open = {loading}
       />
+    )}
     </SafeAreaView>
   );
 };

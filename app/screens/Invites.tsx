@@ -9,7 +9,7 @@ const Invites = () => {
   return (
     <SafeAreaView className='flex-1 px-5'>
         <TopBack />
-        <Text className="text-[32px] font-montAlt">Invite a friend</Text>
+        <Text style={{fontFamily: 'montAlt'}} className="text-[32px]">Invite a friend</Text>
         <View className='flex-1 items-center justify-center'>
             <View className='w-full'>
                 <CustomInput ph='Email' textColor='#111111'/>

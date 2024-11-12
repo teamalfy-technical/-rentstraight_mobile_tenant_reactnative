@@ -9,7 +9,7 @@ const FaqScreen = () => {
             <TopBack />
 
             <View>
-                <Text className="font-montAlt text-[#111111] text-[32px]">FAQ's</Text>
+                <Text style={{fontFamily: 'montAlt'}} className="text-[#111111] text-[32px]">FAQ's</Text>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} className="flex-1">

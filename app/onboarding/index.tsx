@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 export default function Index() {
   return (
-    <SafeAreaView className="flex-1 bg-[#8FBFE0]">
+    <SafeAreaView className="flex-1 bg-[#8FBFE0]" edges={['top']}>
       <View className="px-5">
         <TopBar />
       </View>
@@ -22,19 +22,19 @@ export default function Index() {
         <View className="flex-1">
           <LinearGradient colors={["#FFFFFF98", "#FFFFFF"]} style={{ flex: 1 }}>
             <View className="flex-1 px-5 space-y-5">
-              <Text className="text-[64px] font-montAlt text-[#412234] pt-4">
+              <Text style={{fontFamily: 'montAlt'}} className="text-[64px] text-[#412234] pt-4">
                 Elevate Your Experience
               </Text>
-              <Text className="text-xl text-[#111111] font-montAlt">
+              <Text style={{fontFamily: 'montAlt'}} className="text-xl text-[#111111]">
                 Where Convenience Meets Comfort.
               </Text>
             </View>
-            <View className="px-5">
+            <View className="px-5 mb-5">
               <Pressable
                 className="rounded-[30px] bg-[#F47D7B] py-4 items-center bottom-3"
                 onPress={() => router.replace("/(auth)")}
               >
-                <Text className="text-[#fff] text-lg">Get Started</Text>
+                <Text style={{fontFamily: 'montAlt'}} className="text-[#fff] text-lg">Get Started</Text>
               </Pressable>
             </View>
           </LinearGradient>
